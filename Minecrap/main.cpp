@@ -6,6 +6,7 @@
 int main()
 {
     sf::RenderWindow window(sf::VideoMode(800, 600), "Minecrap");
+    window.setFramerateLimit(60); //limite fps
     /*
     //criacao do retangulo, posso criar usando um ponteiro, para utilizar ponteiro eu preciso passar um valor para armazenar na heap
     //sempre que criar um ponteiro, lembre-se de destrui-lo!
@@ -35,6 +36,13 @@ int main()
     float x = static_cast<float>( std::experimental::randint(10, int(window.getSize().x - object.getSize().x) ) );
     object.setPosition(x, 10.f);
 
+    //posicoes do mouse
+    sf::Vector2i pos_mouse_win; //posicao do mouse em relacao a janela
+    sf::Vector2f pos_mouse_coord; //vai armazenar as coordenadas mapeadas
+
+    //score
+    int score = 0;
+
     while (window.isOpen())
     {
         sf::Event event;
@@ -42,9 +50,23 @@ int main()
         {
             if (event.type == sf::Event::Closed)
                 window.close();
+
+            pos_mouse_win = sf::Mouse::getPosition(window); //ficar sempre pegando a posicao do meu mouse
+            pos_mouse_coord = window.mapPixelToCoords(pos_mouse_win); //converte a posicao do mouse em relacao a janela
         }
 
-        object.move(0.f, 0.02f); //fazer o objeto sempre movimentar pra baixo
+        if(sf::Mouse::isButtonPressed(sf::Mouse::Left)) //verifica se clicou com o botao esquerdo
+        {
+          if(object.getGlobalBounds().contains(pos_mouse_coord)) //essas funcoes verifica se na coordernada que eu cliquei com o botao do mouse, continha algum pixel do retangulo do objeto, 
+                                                                 //fazendo assim uma verificacao de colisao
+          {
+            x = static_cast<float>( std::experimental::randint(10, int(window.getSize().x - object.getSize().x) ) ); //vou gerar o numero randomico novamente
+            object.setPosition(x, 10.f);
+            std::cout << "Score: " << ++score << std::endl;
+          }
+        }
+
+        object.move(0.f, 5.f); //fazer o objeto sempre movimentar pra baixo
         if(object.getPosition().y > window.getSize().y) //verifica se saiu da tela por baixo
         {
           x = static_cast<float>( std::experimental::randint(10, int(window.getSize().x - object.getSize().x) ) ); //vou gerar o numero randomico novamente
