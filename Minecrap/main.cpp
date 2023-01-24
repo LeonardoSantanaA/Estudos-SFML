@@ -1,14 +1,10 @@
+#include <SFML/Audio/SoundBuffer.hpp>
 #include <SFML/Graphics.hpp>
-#include <SFML/Graphics/Rect.hpp>
-#include <SFML/Graphics/Sprite.hpp>
-#include <SFML/System/Vector2.hpp>
-#include <SFML/Window/Keyboard.hpp>
-#include <SFML/Window/WindowStyle.hpp>
+#include <SFML/Audio.hpp>
 #include <cstdlib>
 #include <memory.h>
 #include <iostream>
 #include <experimental/random>
-#include <string>
 
 int main()
 {
@@ -16,7 +12,29 @@ int main()
     window.setFramerateLimit(60); //limite fps
     window.setPosition(sf::Vector2i(30, 30)); //posicao inicial da janela
     window.setMouseCursorVisible(false); //deixa o mouse invisivel
-   
+  
+    //musica e sonoplastia
+    //carregamento dos buffers
+    sf::SoundBuffer pop_buffer, gameover_buffer;
+    if(!pop_buffer.loadFromFile("./assets/sound/pop.wav"))
+    {
+      std::cerr << "Erro ao carregar um efeito sonoro! Consulte a integridade dos seus arquivos." << std::endl;
+      return EXIT_FAILURE;
+    }
+    if(!gameover_buffer.loadFromFile("./assets/sound/game-over-sound.wav"))
+    {
+      std::cerr << "Erro ao carregar um efeito sonoro! Consulte a integridade dos seus arquivos." << std::endl;
+      return EXIT_FAILURE;
+    }
+    sf::Sound pop_snd(pop_buffer), gameover_snd(gameover_buffer);
+
+    sf::Music music;
+    if(!music.openFromFile("./assets/sound/soundtrack.wav"))
+    {
+      std::cerr << "Erro ao carregar a soundtrack! Consulte a integridade dos seus arquivos." << std::endl;
+      return EXIT_FAILURE;
+    }
+
     bool paused = false;
     bool gameover = false;
     bool pressed = false; //verifica se o jogador esta com o botao do mouse pressionado
@@ -51,12 +69,12 @@ int main()
 
     //Font
     sf::Font pixel_fnt, jet_fnt;
-    if(!pixel_fnt.loadFromFile("./Minecraft.ttf"))
+    if(!pixel_fnt.loadFromFile("./assets/fonts/Minecraft.ttf"))
     {
       std::cerr << "Erro ao carregar a font! Consulte a integridade dos seus arquivos." << std::endl;
       return EXIT_FAILURE;
     }
-    if(!jet_fnt.loadFromFile("./jetbrains.ttf"))
+    if(!jet_fnt.loadFromFile("./assets/fonts/jetbrains.ttf"))
     {
       std::cerr << "Erro ao carregar a font! Consulte a integridade dos seus arquivos." << std::endl;
       return EXIT_FAILURE;
@@ -97,22 +115,22 @@ int main()
 
     //Texturas e Sprites
     sf::Texture texture, bg, pickaxe, paused_img;
-    if(!texture.loadFromFile("./spr_obj.png"))
+    if(!texture.loadFromFile("./assets/img//spr_obj.png"))
     {
       std::cerr << "Erro ao carregar a textura do bloco! Consulte a integridade dos seus arquivos." << std::endl;
       return EXIT_FAILURE;
     }
-    if(!bg.loadFromFile("./fundo.jpg"))
+    if(!bg.loadFromFile("./assets/img/fundo.jpg"))
     {
       std::cerr << "Erro ao carregar a textura do background! Consulte a integridade dos seus arquivos." << std::endl;
       return EXIT_FAILURE;
     }
-    if(!pickaxe.loadFromFile("./pickaxe.png"))
+    if(!pickaxe.loadFromFile("./assets/img/pickaxe.png"))
     {
       std::cerr << "Erro ao carregar a textura do mouse! Consulte a integridade dos seus arquivos." << std::endl;
       return EXIT_FAILURE;
     }
-    if(!paused_img.loadFromFile("./paused.jpg"))
+    if(!paused_img.loadFromFile("./assets/img/paused.jpg"))
     {
       std::cerr << "Erro ao carregar a imagem de paused! Consulte a integridade dos seus arquivos." << std::endl;
       return EXIT_FAILURE;
@@ -126,7 +144,7 @@ int main()
     //vou precisar tambem de um vetor, pois sao varios objetos na tela
     std::vector<sf::Sprite> objs;
     size_t max_objs = 5; //qtd maxima de objetos que podem aparecer na tela 
- //   float obj_vel_max = 10.f;
+  //  float obj_vel_max = 10.f;
   //  float obj_vel = obj_vel_max;
 
     //gerando valor randomico
@@ -140,6 +158,13 @@ int main()
     while (window.isOpen())
     {
       sf::Event event;
+
+      if( music.getStatus() == sf::Music::Stopped || music.getStatus() == sf::Music::Paused)
+      {
+        if(!paused) //resolve um pequeno bug sonoro
+        music.play();
+      }
+
       while (window.pollEvent(event))
       {
         if (event.type == sf::Event::Closed)
@@ -172,6 +197,7 @@ int main()
 
       if(gameover)
       {
+        music.stop();
         info_text.setPosition(320, 310);
         info_text.setString("Aperte R para tentar novamente");
         window.setMouseCursorVisible(true);
@@ -197,6 +223,7 @@ int main()
       {
        if(paused)
        {
+         music.pause();
          info_text.setPosition(370, 360);
          info_text.setString("Aperte ESC para retornar");
          window.clear();
@@ -237,6 +264,7 @@ int main()
            if(objs[i].getGlobalBounds().contains(pos_mouse_coord)) //essas funcoes verifica se na coordernada que eu cliquei com o botao do mouse, continha algum pixel do retangulo do objeto, 
                                                                  //fazendo assim uma verificacao de colisao
             {
+             pop_snd.play();
              pressed = true;
              del = true;
              points += 10;
@@ -263,6 +291,7 @@ int main()
            //gameover
            if(health <= 0)
            {
+             gameover_snd.play();
              gameover = true;
            }
          }  
