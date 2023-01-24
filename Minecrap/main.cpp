@@ -1,8 +1,10 @@
 #include <SFML/Graphics.hpp>
+#include <SFML/Graphics/Rect.hpp>
+#include <SFML/Graphics/Sprite.hpp>
+#include <cstdlib>
 #include <memory.h>
 #include <iostream>
 #include <experimental/random>
-#include <pthread.h>
 
 int main()
 {
@@ -27,20 +29,32 @@ int main()
     object->setFillColor(sf::Color(0, 255, 0));
     object->setPosition(sf::Vector2f(10.f, 10.f));
     */
-    
-    //nesse caso, vou usar a forma "tradicional" e alocar na stack
+  
+    /*
+    //posso tabem  usar a forma "tradicional" e alocar na stack
     sf::RectangleShape object;
     object.setSize(sf::Vector2f(100.f, 100.f));
     object.setFillColor(sf::Color(0, 255, 0));
+
+    */   
+    //Texturas e Sprites
+    sf::Texture texture;
+    if(!texture.loadFromFile("./spr_obj.png"))
+    {
+      std::cerr << "Erro ao carregar a textura do bloco! Consulte a integridade dos seus arquivos." << std::endl;
+      return EXIT_FAILURE;
+    }
+    sf::Sprite object(texture);
+    
    
     //vou precisar tambem de um vetor, pois sao varios objetos na tela
-    std::vector<sf::RectangleShape> objs;
+    std::vector<sf::Sprite> objs;
     size_t max_objs = 5; //qtd maxima de objetos que podem aparecer na tela 
     float obj_vel_max = 8.f;
     float obj_vel = obj_vel_max;
 
     //gerando valor randomico
-    float x = static_cast<float>( std::experimental::randint(10, int(window.getSize().x - object.getSize().x) ) );
+    float x = static_cast<float>( std::experimental::randint(10, int(window.getSize().x - texture.getSize().x) ) );
     object.setPosition(x, 10.f);
 
     //posicoes do mouse
@@ -59,6 +73,14 @@ int main()
             if (event.type == sf::Event::Closed)
                 window.close();
 
+            //tratamento da janela
+            if(event.type == sf::Event::Resized)  //evento que deteca se o usuario redimensionou a janela
+            {
+              sf::FloatRect visible_area(0, 0, event.size.width, event.size.height); //cria um novo retangulo, que vai ser nossa area visivel, o tamanho é com base no tanto que o usuario redimensionou
+              window.setView(sf::View(visible_area)); //setar a visibilidade nova
+            }
+            
+
             pos_mouse_win = sf::Mouse::getPosition(window); //ficar sempre pegando a posicao do meu mouse
             pos_mouse_coord = window.mapPixelToCoords(pos_mouse_win); //converte a posicao do mouse em relacao a janela
         }
@@ -67,7 +89,7 @@ int main()
         {
           if(obj_vel >= obj_vel_max)
           {
-            x = static_cast<float>( std::experimental::randint(10, int(window.getSize().x - object.getSize().x) ) ); //vou gerar o numero randomico novamente
+            x = static_cast<float>( std::experimental::randint(10, int(window.getSize().x - texture.getSize().x) ) ); //vou gerar o numero randomico novamente
             object.setPosition(x, 10.f);
             objs.push_back(object);
             obj_vel = 0.f;
