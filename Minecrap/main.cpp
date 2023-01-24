@@ -1,15 +1,18 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/Graphics/Sprite.hpp>
+#include <SFML/Window/WindowStyle.hpp>
 #include <cstdlib>
 #include <memory.h>
 #include <iostream>
 #include <experimental/random>
+#include <string>
 
 int main()
 {
-    sf::RenderWindow window(sf::VideoMode(1200, 600), "Minecrap");
-    window.setFramerateLimit(60); //limite fps
+    sf::RenderWindow window(sf::VideoMode(1200, 600), "Minecrap", sf::Style::Titlebar | sf::Style::Close); // o ultimo parametro impede o redimensionamento da janela
+    window.setFramerateLimit(60); //limite fp
+    window.setPosition(sf::Vector2i(30, 30));
     /*
     //criacao do retangulo, posso criar usando um ponteiro, para utilizar ponteiro eu preciso passar um valor para armazenar na heap
     //sempre que criar um ponteiro, lembre-se de destrui-lo!
@@ -36,16 +39,48 @@ int main()
     object.setSize(sf::Vector2f(100.f, 100.f));
     object.setFillColor(sf::Color(0, 255, 0));
 
-    */   
+    */  
+
+    //Font
+    sf::Font font;
+    if(!font.loadFromFile("./Minecraft.ttf"))
+    {
+      std::cerr << "Erro ao carregar a font! Consulte a integridade dos seus arquivos." << std::endl;
+      return EXIT_FAILURE;
+    }
+    sf::Text score, life; 
+
+    //score
+    int points = 0;
+    score.setFont(font);
+    score.setString("Score: " + std::to_string(points));
+    score.setFillColor(sf::Color::White);
+    score.setPosition(5.f, 5.f);
+
+    //life 
+    int health = 5;
+    life.setFont(font);
+    life.setString("Life: " + std::to_string(health));
+    life.setFillColor(sf::Color::White);
+    life.setPosition(1100.f, 5.f);
+
     //Texturas e Sprites
-    sf::Texture texture;
+    sf::Texture texture, bg;
     if(!texture.loadFromFile("./spr_obj.png"))
     {
       std::cerr << "Erro ao carregar a textura do bloco! Consulte a integridade dos seus arquivos." << std::endl;
       return EXIT_FAILURE;
     }
+    if(!bg.loadFromFile("./fundo.jpg"))
+    {
+      std::cerr << "Erro ao carregar a textura do background! Consulte a integridade dos seus arquivos." << std::endl;
+      return EXIT_FAILURE;
+    }
+
     sf::Sprite object(texture);
+    sf::Sprite background(bg);
     
+  
    
     //vou precisar tambem de um vetor, pois sao varios objetos na tela
     std::vector<sf::Sprite> objs;
@@ -60,10 +95,6 @@ int main()
     //posicoes do mouse
     sf::Vector2i pos_mouse_win; //posicao do mouse em relacao a janela
     sf::Vector2f pos_mouse_coord; //vai armazenar as coordenadas mapeadas
-
-    //score e vida
-    int score = 0;
-    int health = 3;
 
     while (window.isOpen())
     {
@@ -111,14 +142,15 @@ int main()
                                                                  //fazendo assim uma verificacao de colisao
             {
               del = true;
-              score += 10;
-              std::cout << "Score: " << score << '\n';
+              points += 10;
+              score.setString("Score: " + std::to_string(points));
             }
           }
 
           if(objs[i].getPosition().y > window.getSize().y) //verifica se saiu da tela por baixo
           {
-            std::cout << "Vida: " << --health << '\n';
+            --health;
+            life.setString("Life: " + std::to_string(health));
             del = true;
             //gameover
             if(health <= 0)
@@ -138,7 +170,9 @@ int main()
              
 
         window.clear();
-
+        window.draw(background);
+        window.draw(score);
+        window.draw(life);
         //foreach que percorre os objs para desenhar
         for (auto &e : objs)
         {
