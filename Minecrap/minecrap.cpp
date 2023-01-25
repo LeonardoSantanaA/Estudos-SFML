@@ -61,7 +61,7 @@ Minecrap::Minecrap()
 }
 
 // functions
-void Minecrap::verifyFolders()
+void Minecrap::verifyFiles()
 {
   // music & sound effects
   if (!pop_buffer.loadFromFile("./assets/sound/pop.wav"))
@@ -256,7 +256,7 @@ void Minecrap::runGame()
 {
   try
   {
-    this->verifyFolders();
+    this->verifyFiles();
   }
   catch (const char *msg)
   {

@@ -10,17 +10,8 @@
 
 class Minecrap
 {
-public:
-  // functions
-  Minecrap();
-  void verifyFolders();
-  void codeGame();
-  void gameOver();
-  void pauseGame();
-  void loopEvents();
-  void runGame();
-
-  sf::RenderWindow window; // o ultimo parametro impede o redimensionamento da janela
+private:
+  sf::RenderWindow window;
 
   // musica e sonoplastia
   sf::SoundBuffer pop_buffer, gameover_buffer;
@@ -73,6 +64,20 @@ public:
   // posicoes do mouse
   sf::Vector2i pos_mouse_win;   // posicao do mouse em relacao a janela
   sf::Vector2f pos_mouse_coord; // vai armazenar as coordenadas mapeadas
-};
+
+
+  // functions
+  void verifyFiles();
+  void codeGame();
+  void gameOver();
+  void pauseGame();
+  void loopEvents();
+ 
+
+
+public:
+  Minecrap();
+  void runGame();
+ };
 
 #endif
