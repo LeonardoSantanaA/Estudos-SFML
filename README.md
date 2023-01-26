@@ -19,3 +19,11 @@ Primeiro jogo feito usando a biblioteca, consiste em clicar nos blocos para evit
   * Música e Efeitos Sonoros
   ---
   
+  ### Snake Game
+Segundo jogo feito usando a biblioteca, o clássico jogo da cobra.
+* O que foi estudado e colocado em prática:
+ * FPS travado em 60
+ * Orientado a Objetos
+ * Tratamento de Exceções
+ * Lógica com vetores
+ * Valores pseudoaleatórios 
