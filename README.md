@@ -21,18 +21,18 @@ Primeiro jogo feito usando a biblioteca, consiste em clicar nos blocos para evit
 ### Snake Game
 Segundo jogo feito usando a biblioteca, o clássico jogo da cobra.
 * O que foi estudado e colocado em prática:
- * FPS travado em 60
- * Orientado a Objetos
- * Tratamento de Exceções
- * Lógica com vetores
- * Valores pseudoaleatórios 
+  * FPS travado em 60
+  * Orientado a Objetos
+  * Tratamento de Exceções
+  * Lógica com vetores
+  * Valores pseudoaleatórios 
  
    ---
  ### Space War
- Uma cópia mais simples do *Spacewar!*.
- *O que foi estudado e colocado em prática:
-  * Lógica de tiros
-  * Primeiro estudo com animações
-  * Uso de spritesheets
-  * uso de ponteiros inteligentes para instanciar objetos
+ Uma cópia mais simples do _Spacewar!_
+ * O que foi estudado e colocado em prática:
+   * Lógica de tiros
+   * Primeiro estudo com animações
+   * Uso de spritesheets
+   * uso de ponteiros inteligentes para instanciar objetos
 
