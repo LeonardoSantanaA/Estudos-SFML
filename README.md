@@ -6,5 +6,3 @@ Esta *branch* contém os games com sistemas que ainda estão sendo testados.
 ### Snake Game
 * sonosplatia
 ---
-### Space War
-* Sonoplastia
