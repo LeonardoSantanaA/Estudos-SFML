@@ -3,10 +3,10 @@ CXX=g++
 DEBUG=-g
 OPT=-O0
 WARN=-Wall
-SFML=-lsfml-graphics -lsfml-window -lsfml-system
+SFML=-lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio
 CXXFLAGS=$(DEBUG) $(OPT) $(WARN) $(SFML)
 LD=g++
-OBJS= main.o
+OBJS= main.o game.o ship.o enemy.o
 all: $(OBJS)
 	$(LD) -o $(TARGET) $(OBJS) $(CXXFLAGS)
 	@rm *.o
@@ -15,4 +15,12 @@ all: $(OBJS)
 main.o: main.cpp
 	$(CXX) -c $(CXXFLAGS) main.cpp -o main.o
 
+game.o: game.cpp
+	$(CXX) -c $(CXXFLAGS) game.cpp -o game.o
+
+ship.o: ship.cpp
+	$(CXX) -c $(CXXFLAGS) ship.cpp -o ship.o
+
+enemy.o: enemy.cpp
+	$(CXX) -c $(CXXFLAGS) enemy.cpp -o enemy.o
 
