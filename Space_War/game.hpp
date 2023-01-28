@@ -4,16 +4,24 @@
 #include <iostream>
 #include <memory>
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 #include <vector>
 #include <cstdlib>
 #include "ship.hpp"
+#include "enemy.hpp"
 
 class Game
 {
-public:
+private:
   // neste jogo, vamos instanciar usando ponteiros
   // janela do game
   std::shared_ptr<sf::RenderWindow> window;
+  // gameplay
+  int spritesheet_y, score;
+  bool gameover, paused;
+  float frame, speedFrame;
+  float count, max; // quantidade de frames, max é para limitar a quantidade de frames
+  bool show;        // mostrar a animacao apenas uma vez
   // textures
   std::shared_ptr<sf::Texture> ship_t;
   std::shared_ptr<sf::Texture> bullet_t;
@@ -37,9 +45,21 @@ public:
   std::shared_ptr<sf::Text> info_txt;
   // objects
   std::shared_ptr<Ship> ship;
+  std::shared_ptr<Enemy> enemy;
+  // sounds
+  sf::Music music;
 
+  void
+  loadFiles();
+  void flowGame();
+  void gameOver();
+  void pause();
+
+  void collision();
+  void animationExplosion();
+
+public:
   Game();
-  void loadFiles();
   void startGame();
 };
 

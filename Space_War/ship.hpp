@@ -8,12 +8,13 @@
 
 class Ship
 {
-public:
+private:
   std::shared_ptr<sf::RenderWindow> window;
+  int shoots;
+
+public:
   std::shared_ptr<sf::Sprite> ship_spr;
   std::shared_ptr<sf::Sprite> bullet_spr;
-  std::shared_ptr<sf::Texture> ship_t;
-  int shoots;
   std::vector<sf::Sprite> bullets;
 
   Ship(std::shared_ptr<sf::RenderWindow> window, std::shared_ptr<sf::Sprite> sprite, std::shared_ptr<sf::Sprite> bullet_spr);

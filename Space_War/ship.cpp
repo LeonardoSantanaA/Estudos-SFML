@@ -63,22 +63,6 @@ void Ship::shoot()
       bullets[i].move(0, -20.f);
       if (bullets[i].getPosition().y < 0)
         bullets.erase(bullets.begin() + i);
-
-      /*
-            // colisao com a nave
-            for (size_t k{}; k < enemies.size(); ++k)
-            {
-              if (bullets[i].getGlobalBounds().intersects(enemies[k].getGlobalBounds()))
-              {
-                show = false;
-                max = 0;
-                score += 10;
-                explosion_spr->setPosition(enemies[k].getPosition().x, enemies[k].getPosition().y);
-                bullets.erase(bullets.begin() + i);
-                enemies.erase(enemies.begin() + k);
-              }
-            }
-            */
     }
   }
 }
