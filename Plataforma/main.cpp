@@ -2,10 +2,39 @@
 #include <memory>
 #include <iostream>
 
+//map
+//meu tilemap vai ser por caracteres
+const int H = 23, W = 80 / 2;
+sf::String tilemap[H] = {
+"BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
+"B                                B                                       B     B", 
+"B                                B                                       B     B",
+"B                                B                                       B     B",
+"B                                B                                       B     B",
+"B                                B                                       B     B",
+"B                                B                                       B     B",
+"B                                B                                       B     B",
+"B                                B                                       B     B",
+"B                                B                                       B     B",
+"B                                B                                       B     B",
+"B                                B                                       B     B",
+"B                                B                                       B     B",
+"B                                B                                       B     B",
+"B                                B                                       B     B",
+"B         0 0 0 0                B                0000                BBBB     B",
+"B                             BBBB                                       B     B",
+"BBB                              B       BB                              B     B",
+"B              BB         BB     BB    BB              BB              BBBB    B",
+"B          0   BB         BB           BB              BB                      B",
+"B    B         BB         BB           BB    B         BB         BB           B",
+"B    B         BB        BBBB         BBB    B         BB         BB           B",
+"BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB"  
+};
+
 class Player
 {
 private:
-  const int ground = 720 - (82 + 100); // 720 é o tamanho da altura da janela, 82 a altura da sprite e 100 a altura do chao
+  const int ground = 736 - (82 + 32); // 736 é o tamanho da altura da janela, 82 a altura da sprite e 32 a altura do chao (736 pra ficar certinho com o tamanho da sprite do chao)
   float dx, dy, frame;                 // dx controla os movimentos horizontais, dy os movimentos verticais, frame controla a spritesheet
   bool on_ground;                      // verifica se o player  esta no chao
   std::shared_ptr<sf::Sprite> sprite;
@@ -17,8 +46,8 @@ public:
   Player(sf::Texture &texture)
   {
     sprite = std::make_shared<sf::Sprite>(texture);
-    sprite->setTextureRect(sf::IntRect(43, 0, 43, 82)); // pego a parte da sprite pra desenhar
-    rect = std::make_shared<sf::FloatRect>(0, ground, 43, 82);
+    sprite->setTextureRect(sf::IntRect(0, 0, 43, 82)); // pego a parte da sprite pra desenhar
+    rect = std::make_shared<sf::FloatRect>(64, ground, 43, 82);
     dx = 0.f;
     dy = 0.f;
     frame = 0.f;
@@ -51,7 +80,7 @@ public:
     return this->rect->left;
   }
 
-  float setRectLeft(float rectLeft)
+  void setRectLeft(float rectLeft)
   {
     this->rect->left = rectLeft;
   }
@@ -61,10 +90,22 @@ public:
     return this->rect->top;
   }
 
-  float setRectTop(float rectTop)
+  void setRectTop(float rectTop)
   {
     this->rect->top = rectTop;
   }
+
+  float getRectHeight()
+  {
+    return this->rect->height;
+  }
+
+    float getRectWidth()
+  {
+    return this->rect->width;
+  }
+
+
 
   sf::Sprite getSprite()
   {
@@ -80,14 +121,15 @@ public:
   void update(float &time)
   {
 
+
     if (!isOnGround())
     {
-      setDy(getDy() + 0.0006 * time);
+      setDy(getDy() + 0.0008 * time);
       sprite->move(sprite->getPosition().x, dy);
     }
 
-    on_ground = false; // pro player nao ficar voando
-
+    on_ground = false; // pro player nao ficar voando 
+    collision(0); 
     // essa verificacao é responsavel por fazer o nosso player nao passar do chao
     if (getRectTop() > ground)
     { // verifica se está no chao
@@ -96,11 +138,12 @@ public:
       on_ground = true; // eu nao quero controlar o on_ground por fora da classe, por isso estou mexendo na variavel diretamente sem get e set
     }
 
-    frame += 0.4f * time; // nao quero controlar o frame por fora da classe, por isso estou mexendo na variavel diretamente
+    frame += 0.01f * time; // nao quero controlar o frame por fora da classe, por isso estou mexendo na variavel diretamente
     if (frame > 6)
     {             // total de sprites que meu spritesheet possui (iniciando do 0)
       frame -= 6; // vou voltar pro 0
     }
+
 
     // movimento player
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
@@ -132,25 +175,60 @@ public:
     // para usar no setPosition() la embaixo
     // é mais simples usar o atributo rect diretamente nesse caso, por isso nao tem um get e um set pro rect
     setRectLeft(getRectLeft() + getDx() * time); // atualizacao dos valores do left do meu retangulo para realizar o movimento (rect.left) pega o primeiro parametro do retangulo que eu criei (left, top, width, height)
+    collision(1);
     setRectTop(getRectTop() + getDy() * time);
-
+    
     // de acordo com os valores verificados acima, eu vou setar a posicao do meu player
     sprite->setPosition(rect->left, rect->top);
     // vou zerar o dx pra ele nao ficar correndo sem parar
     setDx(0);
   }
-};
 
+void collision(int direction){
+  for(int i = getRectTop() / 32; i < (getRectTop() + getRectHeight()) / 32; ++i){ //percore a vertical
+      for(int j = getRectLeft() / 32; j < (getRectLeft() + getRectWidth()) / 32; ++j){  //percorre a horizontal
+        if(tilemap[i][j] == 'B'){ //se colidir com algum B
+          //colisao com o X
+          if(direction == 1){
+            if(getDx() > 0){  //e ele estiver movimentando pra direita
+              setRectLeft(j * 32 - getRectWidth()); //vou setar a horizontal dele para aquela posicao
+            }
+            if(getDx() < 0){ //movimentando pra esquerda
+              setRectLeft(j * 32 + 32);
+            }
+          }               
+          //colisao com o Y
+          if(direction == 0){
+            if(getDy() > 0){  //e ele estiver movimentando pra baixo
+              setRectTop(i * 32 - getRectHeight());
+              setDy(0);
+              on_ground = true;
+            }
+            if(getDy() < 0){ //pra cima
+              setRectTop(i * 32 + 32);
+              setDy(0);
+            }
+          }
+        }
+        //colisao com o item coletavel
+        if(tilemap[i][j] == '0'){
+          tilemap[i][j] = ' ';
+        }
+      }
+    }
+
+  }
+};
 int main()
 {
   // vou iniciar a janela na stack também
-  sf::RenderWindow window(sf::VideoMode(1280, 720), "Plataforma 2D", sf::Style::Titlebar | sf::Style::Close);
+  sf::RenderWindow window(sf::VideoMode(1280, 736), "Plataforma 2D", sf::Style::Titlebar | sf::Style::Close);
   window.setPosition(sf::Vector2i(30, 30));
-  // window.setFramerateLimit(120);
+  window.setFramerateLimit(120);
   // para este jogo, alem de travar em 120 FPS, vou usar o time para fazer uma pequena suavizacao dos movimentos
 
   // constantes que vou utilizar
-  const float height_floor = 100.f;
+  const float height_floor = 32.f;
 
   // iniciando texturas
   std::shared_ptr<sf::Texture> bg_t = std::make_shared<sf::Texture>();
@@ -185,6 +263,10 @@ int main()
 
   // time
   sf::Clock clock; // vou iniciar o clock na stack mesmo
+  
+  //criando o mapa
+  std::shared_ptr<sf::RectangleShape> rectangle = std::make_shared<sf::RectangleShape>(sf::Vector2f(height_floor, height_floor)); //vou criar um quadrado
+
 
   while (window.isOpen())
   {
@@ -205,6 +287,25 @@ int main()
 
     window.clear(sf::Color::Yellow);
     window.draw(*bg_spr);
+   
+   //loop que verifica o tilemap percorrendo pelo vetor de string criado no topo
+    for(int i{}; i < H; ++i){
+      for(int j{}; j < W; ++j){
+        if(tilemap[i][j] == 'B'){ //quando o caractere for B, vai ser os colisores dos cantos
+          rectangle->setFillColor(sf::Color::Black);
+        }
+        if(tilemap[i][j] == '0'){
+          rectangle->setFillColor(sf::Color::Blue);
+        }
+        if(tilemap[i][j] == ' '){ //quando for vazio, nao fazer nada
+          continue;
+        }
+
+        rectangle->setPosition(j * 32, i * 32); //colocar um retangulo na posicao
+        window.draw(*rectangle);
+      }
+    }
+  
     window.draw(*floor_spr);
     window.draw(player->getSprite());
     window.display();
