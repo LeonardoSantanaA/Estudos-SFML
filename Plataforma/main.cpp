@@ -4,7 +4,7 @@
 
 //map
 //meu tilemap vai ser por caracteres
-const int H = 23, W = 80 / 2;
+const int H = 23, W = 80;
 sf::String tilemap[H] = {
 "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
 "B                                B                                       B     B", 
@@ -30,6 +30,9 @@ sf::String tilemap[H] = {
 "B    B         BB        BBBB         BBB    B         BB         BB           B",
 "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB"  
 };
+
+//camera
+float offset_x = 0.f;
 
 class Player
 {
@@ -69,7 +72,7 @@ public:
   {
     return this->dy;
   }
-
+  
   void setDy(float dy)
   {
     this->dy = dy;
@@ -137,8 +140,9 @@ public:
       setDy(0);
       on_ground = true; // eu nao quero controlar o on_ground por fora da classe, por isso estou mexendo na variavel diretamente sem get e set
     }
-
-    frame += 0.01f * time; // nao quero controlar o frame por fora da classe, por isso estou mexendo na variavel diretamente
+    if(isOnGround()){
+    frame += 0.02f * time; // nao quero controlar o frame por fora da classe, por isso estou mexendo na variavel diretamente
+    }
     if (frame > 6)
     {             // total de sprites que meu spritesheet possui (iniciando do 0)
       frame -= 6; // vou voltar pro 0
@@ -172,14 +176,13 @@ public:
       sprite->setTextureRect(sf::IntRect(43 * (int)frame + 43, 0, -43, 82)); // quando a largura é valor negativo (no caso -43, ele inverte a sprite, porem preciso de somar mais 1 sprite (por isso tem + 43 no primeiro parametro)
     }
 
-    // para usar no setPosition() la embaixo
-    // é mais simples usar o atributo rect diretamente nesse caso, por isso nao tem um get e um set pro rect
-    setRectLeft(getRectLeft() + getDx() * time); // atualizacao dos valores do left do meu retangulo para realizar o movimento (rect.left) pega o primeiro parametro do retangulo que eu criei (left, top, width, height)
+    // para usar no setPosition() logo abaixo
+    setRectLeft(getRectLeft() + getDx() * time); // atualizacao dos valores do left do meu retangulo para realizar o movimento (getRectLeft pega o primeiro parametro do retangulo que eu criei (left, top, width, height))
     collision(1);
     setRectTop(getRectTop() + getDy() * time);
     
     // de acordo com os valores verificados acima, eu vou setar a posicao do meu player
-    sprite->setPosition(rect->left, rect->top);
+    sprite->setPosition(getRectLeft() - offset_x, rect->top);
     // vou zerar o dx pra ele nao ficar correndo sem parar
     setDx(0);
   }
@@ -232,7 +235,8 @@ int main()
 
   // iniciando texturas
   std::shared_ptr<sf::Texture> bg_t = std::make_shared<sf::Texture>();
-  std::shared_ptr<sf::Texture> floor_t = std::make_shared<sf::Texture>();
+  sf::Texture box_t; //essa textura nao podem ser ponteiros, pois vou passar apenas a referencia
+  sf::Texture points_t;
   std::shared_ptr<sf::Texture> player_t = std::make_shared<sf::Texture>();
 
   // carregando arquivos
@@ -241,21 +245,22 @@ int main()
     std::cerr << "Não foi possível carregar a imagem do background! Verifique a integridade dos seus arquivos.\n";
     window.close();
   }
-  if (!floor_t->loadFromFile("./assets/img/floormax.jpg"))
-  {
-    std::cerr << "Não foi possível carregar a imagem do chão! Verifique a integridade dos seus arquivos.";
+  if(!box_t.loadFromFile("./assets/img/box.jpg")){
+    std::cerr << "Não foi possível carregar a imagem da box! Verifique a integridade dos seus arquivos.\n";
+    window.close();
+  }
+  if(!points_t.loadFromFile("./assets/img/points.png")){
+    std::cerr << "Não foi possível carregar a imagem da box! Verifique a integridade dos seus arquivos.\n";
     window.close();
   }
   if (!player_t->loadFromFile("./assets/img/afro.png"))
   {
-    std::cerr << "Não foi possível carregar a imagem do player! Verifique a integridade dos seus arquivos.";
+    std::cerr << "Não foi possível carregar a imagem do player! Verifique a integridade dos seus arquivos.\n";
     window.close();
   }
 
   // iniciando sprites
-  std::shared_ptr<sf::Sprite> bg_spr = std::make_shared<sf::Sprite>(*bg_t);
-  std::shared_ptr<sf::Sprite> floor_spr = std::make_shared<sf::Sprite>(*floor_t);
-  floor_spr->setPosition(0.f, window.getSize().y - height_floor);
+  std::shared_ptr<sf::Sprite> bg_spr = std::make_shared<sf::Sprite>(*bg_t); 
   std::shared_ptr<sf::Sprite> player_spr = std::make_shared<sf::Sprite>();
 
   // iniciando player
@@ -266,7 +271,7 @@ int main()
   
   //criando o mapa
   std::shared_ptr<sf::RectangleShape> rectangle = std::make_shared<sf::RectangleShape>(sf::Vector2f(height_floor, height_floor)); //vou criar um quadrado
-
+  //sf::RectangleShape rectangle(sf::Vector2f(height_floor, height_floor));
 
   while (window.isOpen())
   {
@@ -284,6 +289,11 @@ int main()
     }
 
     player->update(time);
+    //camera
+    //verificacao das bordas
+    if(player->getRectLeft() > (float)window.getSize().x / 2 && player->getRectLeft() + player->getRectWidth() < (float)window.getSize().x + player->getRectWidth() + 192){
+    offset_x = player->getRectLeft() - (float)window.getSize().x / 2; //o offset vai ser responsavel por mover minha camera, ele acompanha horizontalmente o meu player, e pro player ficar no meio da tela, subtraio pela metade da janela
+    }
 
     window.clear(sf::Color::Yellow);
     window.draw(*bg_spr);
@@ -292,21 +302,22 @@ int main()
     for(int i{}; i < H; ++i){
       for(int j{}; j < W; ++j){
         if(tilemap[i][j] == 'B'){ //quando o caractere for B, vai ser os colisores dos cantos
-          rectangle->setFillColor(sf::Color::Black);
+          //rectangle->setFillColor(sf::Color::Black);
+          rectangle->setTexture(&box_t);
         }
         if(tilemap[i][j] == '0'){
-          rectangle->setFillColor(sf::Color::Blue);
+          rectangle->setTexture(&points_t);
+          //rectangle->setFillColor(sf::Color::Blue);
         }
         if(tilemap[i][j] == ' '){ //quando for vazio, nao fazer nada
           continue;
         }
 
-        rectangle->setPosition(j * 32, i * 32); //colocar um retangulo na posicao
+        rectangle->setPosition(j * 32 - offset_x, i * 32); //colocar um retangulo na posicao
         window.draw(*rectangle);
       }
     }
-  
-    window.draw(*floor_spr);
+
     window.draw(player->getSprite());
     window.display();
   }
