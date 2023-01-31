@@ -37,7 +37,7 @@ Segundo jogo feito usando a biblioteca, o clássico jogo da cobra.
    * Uso de ponteiros inteligentes para instanciar objetos
    
    ---  
- ###Plataforma
+ ### Plataforma
  Um estudo de uma base de jogo simples de plataforma
  * O que foi estudado e colocado em prática
   * Física simples
