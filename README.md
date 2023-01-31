@@ -39,9 +39,9 @@ Segundo jogo feito usando a biblioteca, o clássico jogo da cobra.
    ---  
  ### Plataforma
  Um estudo de uma base de jogo simples de plataforma
- * O que foi estudado e colocado em prática
-  * Física simples
-  * Uso de spritesheets
-  * Uso de ponteiros inteligentes
-  * Mapa simples criado a partir de caracteres
+ * O que foi estudado e colocado em prática:
+   * Física simples
+   * Uso de spritesheets
+   * Uso de ponteiros inteligentes
+   * Mapa simples criado a partir de caracteres
 
