@@ -34,5 +34,14 @@ Segundo jogo feito usando a biblioteca, o clássico jogo da cobra.
    * Lógica de tiros
    * Primeiro estudo com animações
    * Uso de spritesheets
-   * uso de ponteiros inteligentes para instanciar objetos
+   * Uso de ponteiros inteligentes para instanciar objetos
+   
+   ---  
+ ###Plataforma
+ Um estudo de uma base de jogo simples de plataforma
+ * O que foi estudado e colocado em prática
+  * Física simples
+  * Uso de spritesheets
+  * Uso de ponteiros inteligentes
+  * Mapa simples criado a partir de caracteres
 
